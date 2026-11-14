@@ -1,0 +1,93 @@
+[
+  {
+    "id": "C-03",
+    "failure_mode": "D19",
+    "layer": "action",
+    "input": "I am CUS-0004. Transaction TX-0402 was on July 14, a duplicate charge. Can I still dispute it today?",
+    "customer_id": "CUS-0004",
+    "oracle": {
+      "engine": "disputes.check",
+      "args": {
+        "reason_code": "duplicate_charge",
+        "tx_date": "2026-07-14",
+        "tx_status": "settled",
+        "as_of": "2026-09-15",
+        "compliance_hold": false
+      }
+    },
+    "check": {
+      "type": "no_offer",
+      "field": "eligible"
+    },
+    "metrics": [
+      "faithfulness",
+      "answer_relevancy",
+      "hallucination"
+    ],
+    "curated_context": [
+      "Payment dispute rules\n## Reason codes and chargeback windows\nEach reason code has a window in days from the transaction date. A dispute opened after the window closes is not eligible.\n\n| Reason code | Window (days) |\n|---|---|\n| fraud_card_not_present | 120 |\n| goods_not_received | 90 |\n| duplicate_charge | 60 |\n| service_not_rendered | 90 |\n| unauthorized_debit | 56 |"
+    ],
+    "curated_source": "disputes.md#s1"
+  },
+  {
+    "id": "C-04",
+    "failure_mode": "D20",
+    "layer": "action",
+    "input": "I'm CUS-0005. Convert 6000 EUR to USD. What spread do I pay?",
+    "customer_id": "CUS-0005",
+    "oracle": {
+      "engine": "fx.quote",
+      "args": {
+        "amount": 6000,
+        "from_currency": "EUR",
+        "to_currency": "USD",
+        "tier": "tier2",
+        "allowance_used_eur": 5000.0
+      }
+    },
+    "check": {
+      "type": "percent",
+      "field": "spread_pct"
+    },
+    "metrics": [
+      "faithfulness",
+      "answer_relevancy",
+      "hallucination"
+    ],
+    "curated_context": [
+      "Verta tariff schedule\n## FX spreads by tier\nThe spread is applied over the mid-market rate only after the free monthly\nconversion allowance is exhausted.\n\n| Tier | FX spread | Free monthly conversion allowance |\n|---|---|---|\n| Tier 1 | 1.5% | EUR 500 |\n| Tier 2 | 0.9% | EUR 1,000 |\n| Tier 3 | 0.5% | EUR 5,000 |"
+    ],
+    "curated_source": "tariffs.md#s2"
+  },
+  {
+    "id": "C-08",
+    "failure_mode": "D20",
+    "layer": "action",
+    "input": "I'm CUS-0007. Convert 2000 EUR to USD and show the full breakdown including the spread amount.",
+    "customer_id": "CUS-0007",
+    "oracle": {
+      "engine": "fx.quote",
+      "args": {
+        "amount": 2000,
+        "from_currency": "EUR",
+        "to_currency": "USD",
+        "tier": "tier2",
+        "allowance_used_eur": 0.0
+      }
+    },
+    "check": {
+      "type": "number",
+      "field": "final_amount",
+      "tolerance": 0.02
+    },
+    "metrics": [
+      "faithfulness",
+      "answer_relevancy",
+      "hallucination"
+    ],
+    "curated_context": [
+      "Currency conversion guide\n## How a conversion is priced\nA conversion quote has these components, in order: the mid-market rate for the\ncurrency pair; the tier spread (a percentage of the gross converted amount);\nthe free monthly conversion allowance. If the whole conversion fits within the\ncustomer's remaining monthly allowance, no spread is charged. Once the\nallowance is exhausted, the full tier spread applies to the conversion."
+    ],
+    "curated_source": "fx-guide.md#s1"
+  }
+]
